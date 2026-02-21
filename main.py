@@ -54,25 +54,6 @@ def init_intraday_table():
     conn.close()
     return {"status": "intraday_state table created"}
 
-@app.get("/test-insert")
-def test_insert():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        INSERT INTO intraday_state (
-            symbol, trade_date, open_price
-        )
-        VALUES (%s, CURRENT_DATE, %s)
-        ON CONFLICT (symbol) DO NOTHING;
-    """, ("TEST.IS", 100.0))
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return {"status": "test row inserted"}
-
 @app.get("/state-count")
 def state_count():
     conn = get_db_connection()
@@ -82,3 +63,13 @@ def state_count():
     cursor.close()
     conn.close()
     return {"count": count}
+
+@app.get("/reset-intraday-state")
+def reset_intraday_state():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE intraday_state;")
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"status": "intraday_state reset"}
