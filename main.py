@@ -53,3 +53,22 @@ def init_intraday_table():
     cursor.close()
     conn.close()
     return {"status": "intraday_state table created"}
+
+@app.get("/test-insert")
+def test_insert():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO intraday_state (
+            symbol, trade_date, open_price
+        )
+        VALUES (%s, CURRENT_DATE, %s)
+        ON CONFLICT (symbol) DO NOTHING;
+    """, ("TEST.IS", 100.0))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return {"status": "test row inserted"}
