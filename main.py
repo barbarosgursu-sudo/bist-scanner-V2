@@ -72,3 +72,13 @@ def test_insert():
     conn.close()
 
     return {"status": "test row inserted"}
+
+@app.get("/state-count")
+def state_count():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM intraday_state;")
+    count = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+    return {"count": count}
