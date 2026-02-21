@@ -31,3 +31,25 @@ def db_test():
         return {"db_status": "connected", "result": result}
     except Exception as e:
         return {"db_status": "error", "error": str(e)}
+
+@app.get("/init-intraday-table")
+def init_intraday_table():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS intraday_state (
+            symbol VARCHAR(20) PRIMARY KEY,
+            trade_date DATE NOT NULL,
+            open_price DOUBLE PRECISION NOT NULL,
+            dip_detected BOOLEAN NOT NULL DEFAULT FALSE,
+            triggered BOOLEAN NOT NULL DEFAULT FALSE,
+            first_dip_time TIMESTAMP NULL,
+            trigger_time TIMESTAMP NULL,
+            last_checked_price DOUBLE PRECISION NULL,
+            last_update_time TIMESTAMP NULL
+        );
+    """)
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"status": "intraday_state table created"}
